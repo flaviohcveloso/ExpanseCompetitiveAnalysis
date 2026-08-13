@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expanse — Competitive Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F4EFE6;
+    --cream-2:#EDE6D8;
+    --black:#111110;
+    --orange:#F1571C;
+    --orange-dark:#C9430F;
+    --orange-tint:#FCE6DA;
+    --white:#FFFFFF;
+    --ink:#17160F;
+    --muted:#726F65;
+    --muted-dark:#A7A29A;
+    --border:#E1D9C8;
+    --border-dark:#2B2A26;
+    --radius:14px;
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  @media (max-width:720px){.wrap{padding:0 20px;}}
+  [data-view]{display:none;}
+  [data-view].active{display:block;}
+
+  /* shared */
+  .logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;letter-spacing:-0.01em;}
+  .logo .mark{width:14px;height:14px;background:var(--orange);border-radius:4px;transform:rotate(45deg);flex:none;}
+  .logo.light{color:var(--white);}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--orange-dark);margin-bottom:16px;}
+  .eyebrow .dot{width:7px;height:7px;background:var(--orange);border-radius:2px;transform:rotate(45deg);flex:none;}
+  .eyebrow.on-dark{color:var(--orange);}
+  h1,h2,h3{margin:0;letter-spacing:-0.02em;font-weight:700;}
+  .accent{color:var(--orange);}
+  p{line-height:1.65;}
+  .lede{font-size:16.5px;color:var(--muted);max-width:560px;}
+  .link-jump{display:inline-flex;align-items:center;gap:6px;padding:12px 20px;border-radius:999px;font-weight:600;font-size:14px;border:1px solid var(--border);color:var(--ink);background:var(--white);cursor:pointer;}
+  .link-jump:hover{border-color:var(--ink);}
+  .link-back{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:26px;}
+  .link-back:hover{color:var(--ink);}
+  .band{padding:50px 0;}
+  .band.cream2{background:var(--cream-2);}
+  .note-illustrative{font-size:12px;color:var(--muted);margin-top:12px;}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:40;background:rgba(244,239,230,0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+  nav .row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
+  nav .doctype{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+  nav .nlink{cursor:pointer;}
+
+  /* home hero */
+  .hero{padding:64px 0 46px;}
+  .hero h1{font-size:clamp(32px,4.6vw,52px);line-height:1.06;max-width:760px;}
+  .hero .lede{margin-top:18px;font-size:17.5px;max-width:640px;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px;}
+  @media (max-width:640px){.stat-row{grid-template-columns:1fr;}}
+  .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px;}
+  .stat-card .num{font-size:32px;font-weight:800;color:var(--orange);letter-spacing:-0.02em;}
+  .stat-card .cap{font-size:14px;color:var(--ink);margin-top:5px;font-weight:600;}
+  .stat-card .src{font-size:11.5px;color:var(--muted);margin-top:8px;}
+
+  /* competitor picker cards on home */
+  .section-head{max-width:640px;}
+  .section-head h2{font-size:clamp(24px,3.2vw,32px);}
+  .pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px;}
+  @media (max-width:880px){.pick-grid{grid-template-columns:1fr;}}
+  .pick-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;gap:14px;cursor:pointer;transition:border-color .15s;}
+  .pick-card:hover{border-color:var(--orange);}
+  .pick-card .badge{align-self:flex-start;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--orange-dark);background:var(--orange-tint);padding:5px 10px;border-radius:6px;}
+  .pick-card h3{font-size:19px;}
+  .pick-card .tagline{font-size:13.5px;color:var(--muted);flex:1;}
+  .pick-card .stat{font-size:12.5px;font-weight:600;color:var(--ink);background:var(--cream-2);border-radius:8px;padding:9px 12px;}
+  .pick-card .cta{font-size:13.5px;font-weight:700;color:var(--orange-dark);display:flex;align-items:center;gap:5px;}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px;}
+  @media (max-width:860px){.cat-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.cat-grid{grid-template-columns:1fr;}}
+  .cat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+  .cat-card.is-expanse{background:var(--black);color:var(--white);border-color:var(--black);}
+  .cat-card .k{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;}
+  .cat-card.is-expanse .k{color:var(--muted-dark);}
+  .cat-card h4{font-size:15.5px;font-weight:700;margin:0 0 6px;}
+  .cat-card p{font-size:12.8px;color:var(--muted);margin:0;}
+  .cat-card.is-expanse p{color:var(--muted-dark);}
+
+  /* study page */
+  .study-hero{padding:44px 0 10px;}
+  .study-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+  .study-head h1{font-size:clamp(30px,4.2vw,44px);}
+  .study-head .tagline{font-size:16px;color:var(--muted);margin-top:10px;max-width:560px;}
+  .study-badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--orange-dark);background:var(--orange-tint);padding:6px 12px;border-radius:8px;white-space:nowrap;}
+
+  .facts-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:28px;}
+  @media (max-width:900px){.facts-grid{grid-template-columns:repeat(2,1fr);}}
+  .fact{background:var(--white);padding:16px 18px;}
+  .fact .k{font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);font-weight:700;margin-bottom:6px;}
+  .fact .v{font-size:13.8px;font-weight:600;line-height:1.4;}
+
+  .prose{max-width:720px;}
+  .prose h3{font-size:20px;margin-bottom:12px;}
+  .prose p{font-size:15px;color:var(--ink);margin:0 0 16px;}
+  .prose p.muted{color:var(--muted);}
+
+  .claim-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;}
+  @media (max-width:700px){.claim-row{grid-template-columns:1fr;}}
+  .claim{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .claim .num{font-size:22px;font-weight:800;color:var(--orange);}
+  .claim .cap{font-size:12.5px;color:var(--muted);margin-top:4px;}
+
+  .h2h{overflow-x:auto;margin-top:20px;border:1px solid var(--border);border-radius:var(--radius);background:var(--white);}
+  .h2h table{border-collapse:collapse;width:100%;min-width:520px;font-size:13.8px;}
+  .h2h th,.h2h td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+  .h2h thead th{background:var(--cream-2);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);font-weight:700;}
+  .h2h thead th.col-expanse{background:var(--black);color:var(--white);}
+  .h2h td.col-expanse{background:var(--orange-tint);font-weight:600;}
+  .h2h tr:last-child td{border-bottom:none;}
+
+  .bottom-line{background:var(--black);color:var(--white);border-radius:var(--radius);padding:26px 28px;margin-top:30px;}
+  .bottom-line .eyebrow{margin-bottom:10px;}
+  .bottom-line p{font-size:15px;color:var(--muted-dark);margin:0;}
+  .bottom-line p b{color:var(--white);}
+
+  .src-list{margin-top:22px;font-size:12.5px;color:var(--muted);}
+  .src-list a{text-decoration:underline;}
+
+  .study-nav{display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);flex-wrap:wrap;gap:14px;}
+
+  /* methodology + footer */
+  .methodology{padding:40px 0 60px;}
+  .methodology .box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;font-size:13px;color:var(--muted);line-height:1.7;}
+  .methodology .box b{color:var(--ink);}
+  footer{background:var(--black);color:var(--muted-dark);padding:40px 0 24px;}
+  .foot-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:12px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap row">
+    <div class="logo nlink" data-nav="home"><span class="mark"></span>expanse</div>
+    <span class="doctype">Competitive Analysis · Aug 2026</span>
+  </div>
+</nav>
+
+<!-- ============ HOME ============ -->
+<div data-view="home" class="active">
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow"><span class="dot"></span>Competitive Analysis</div>
+      <h1>Compute Certainty is <span class="accent">its own category.</span></h1>
+      <p class="lede">Expanse predicts how much GPU, memory and time a job will actually need, before it runs — on infrastructure teams already own. This short study looks at the three vendors closest to that pitch, and where each one actually overlaps or diverges from it.</p>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="num">~30%</div>
+          <div class="cap">of cloud spend is lost to resource over-allocation</div>
+          <div class="src">As cited by Expanse in its Y Combinator profile</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">~50%</div>
+          <div class="cap">is the typical GPU utilization rate in deep learning jobs</div>
+          <div class="src">Microsoft Research, as cited by Expanse</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band cream2">
+    <div class="wrap">
+      <div class="eyebrow"><span class="dot"></span>Three studies</div>
+      <div class="section-head">
+        <h2>The closest players, <span class="accent">one by one.</span></h2>
+        <p class="lede">Each card opens a short, sourced study: what the company actually does, what it claims, and where it agrees or disagrees with Expanse's approach.</p>
+      </div>
+      <div class="pick-grid">
+        <div class="pick-card" data-nav="runai">
+          <span class="badge">GPU Orchestration</span>
+          <h3>NVIDIA Run:ai</h3>
+          <p class="tagline">The closest competitor by scale: a policy-driven scheduler that dynamically allocates fractional GPUs across an enterprise, now owned by NVIDIA.</p>
+          <div class="stat">Claims 5× GPU utilization, 20× more concurrent workloads</div>
+          <span class="cta">Read the full study →</span>
+        </div>
+        <div class="pick-card" data-nav="clearml">
+          <span class="badge">MLOps Platform</span>
+          <h3>ClearML</h3>
+          <p class="tagline">A much broader infrastructure + MLOps suite — its own scheduler, quotas, experiment tracking and GenAI deployment layer in one platform.</p>
+          <div class="stat">Claims 75%+ GPU utilization, up to 200% compute efficiency</div>
+          <span class="cta">Read the full study →</span>
+        </div>
+        <div class="pick-card" data-nav="castai">
+          <span class="badge">Kubernetes FinOps</span>
+          <h3>CAST AI</h3>
+          <p class="tagline">A cost-optimization player for Kubernetes GPU fleets on public cloud — GPU sharing, bin-packing and spot orchestration, billed like a FinOps tool.</p>
+          <div class="stat">Cites 5% average GPU utilization across K8s clusters</div>
+          <span class="cta">Read the full study →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow"><span class="dot"></span>Landscape</div>
+      <div class="section-head">
+        <h2>Four categories, <span class="accent">one open question.</span></h2>
+        <p class="lede">All four groups fight GPU waste. Only one of them is built around the moment before a job is submitted.</p>
+      </div>
+      <div class="cat-grid">
+        <div class="cat-card is-expanse">
+          <div class="k">Expanse's category</div>
+          <h4>Compute-capacity intelligence</h4>
+          <p>Predicts resource needs and failure risk before submission, from your own cluster's telemetry.</p>
+        </div>
+        <div class="cat-card">
+          <div class="k">Orchestration</div>
+          <h4>GPU orchestrator</h4>
+          <p>Decides where and how a job runs, in real time, once it's already been submitted.</p>
+        </div>
+        <div class="cat-card">
+          <div class="k">Platform</div>
+          <h4>MLOps / infra platform</h4>
+          <p>Bundles scheduling with experiment tracking, pipelines and deployment into one suite.</p>
+        </div>
+        <div class="cat-card">
+          <div class="k">FinOps</div>
+          <h4>Cost optimizer</h4>
+          <p>Rightsizes and reshuffles already-running workloads to cut the cloud bill.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="methodology">
+    <div class="wrap">
+      <div class="box">
+        <b>Sources & methodology.</b> Expanse's brand, product and metrics were sourced from the Figma file <i>"Expanse - UX/UI"</i> (Home, Product and Company pages) and cross-checked against <a href="https://expanse.sh/" style="text-decoration:underline;">expanse.sh</a> and Expanse's <a href="https://www.ycombinator.com/companies/expanse" style="text-decoration:underline;">Y Combinator profile</a>. Each competitor study is built from that company's own public product pages, cited at the bottom of each study — without access to any internal data. This is a directional analysis for internal/strategic use, not material approved by any of the vendors named, and it doesn't substitute for direct verification before external publication.
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ STUDY TEMPLATE: RUN:AI ============ -->
+<div data-view="runai">
+  <section class="study-hero">
+    <div class="wrap">
+      <span class="link-back" data-nav="home">← Back to overview</span>
+      <div class="study-head">
+        <div>
+          <h1>NVIDIA Run:ai</h1>
+          <p class="tagline">A policy-driven GPU orchestrator that dynamically allocates fractional GPUs across an enterprise's AI workloads — now part of NVIDIA's software stack.</p>
+        </div>
+        <span class="study-badge">GPU Orchestration</span>
+      </div>
+      <div class="facts-grid">
+        <div class="fact"><div class="k">Category</div><div class="v">GPU orchestration & scheduling</div></div>
+        <div class="fact"><div class="k">Ownership</div><div class="v">Acquired by NVIDIA (2024–2025)</div></div>
+        <div class="fact"><div class="k">Environments</div><div class="v">Kubernetes · public, private, hybrid, on-prem</div></div>
+        <div class="fact"><div class="k">Typical buyer</div><div class="v">Enterprise IT / MLOps, ML engineers</div></div>
+        <div class="fact"><div class="k">Access model</div><div class="v">Enterprise license (NVIDIA)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap prose">
+      <h3>What it does</h3>
+      <p>Run:ai sits on top of Kubernetes and takes over the decision of how GPUs get handed out. Its core mechanic is <b>fractional GPU allocation</b>: instead of giving a whole GPU to one workload, it can split a GPU across several inference, embedding and generation jobs running concurrently, matching resources to demand in real time. On top of that sits what NVIDIA calls an "AI-native workload orchestration engine" — it pools GPUs across public cloud, private cloud, hybrid and on-prem environments and treats them as one scalable resource, sometimes described as an "AI factory."</p>
+      <p>The other half of the product is governance: a policy engine that gives IT centralized control over who gets priority access to GPUs, by department, project or team, with the goal of eliminating the manual, ad-hoc allocation that causes both idle capacity and noisy-neighbor contention.</p>
+      <p class="muted">Run:ai was acquired by NVIDIA and is now sold and developed as part of NVIDIA's enterprise software stack — which is also why its roadmap and hardware assumptions increasingly lean toward NVIDIA GPUs specifically, rather than staying silicon-agnostic.</p>
+
+      <h3 style="margin-top:8px;">Claimed results</h3>
+      <div class="claim-row">
+        <div class="claim"><div class="num">10×</div><div class="cap">improvement in GPU availability</div></div>
+        <div class="claim"><div class="num">20×</div><div class="cap">increase in concurrent workloads</div></div>
+        <div class="claim"><div class="num">5×</div><div class="cap">improvement in GPU utilization</div></div>
+      </div>
+      <div class="note-illustrative">Figures as published by NVIDIA on the Run:ai product page — not independently verified as part of this study.</div>
+
+      <h3 style="margin-top:28px;">Where it overlaps with Expanse</h3>
+      <p>Both products exist to close the gap between GPUs an organization owns and GPUs it actually gets useful work out of, and both talk directly to Kubernetes clusters. A team evaluating Expanse will very plausibly have Run:ai (or a Slurm-based equivalent) already sitting underneath it as the scheduler.</p>
+
+      <h3>Where it differs</h3>
+      <p>Run:ai <i>is</i> the scheduler — it makes the real-time placement and allocation decision itself, after a job has already been submitted, using fractional GPU tricks and policy rules. Expanse doesn't try to replace that decision-maker; it sits one step earlier, predicting — before a job is even submitted — how much GPU, memory and time it will actually need, and whether it's likely to fail. In practice: Run:ai changes how a job gets placed once you've asked for resources; Expanse changes what you ask for in the first place, and can feed that better number into Run:ai, Slurm or Nomad rather than competing with any of them. It's also worth noting that Run:ai's tightening integration with NVIDIA's stack is a trade-off some multi-vendor or on-prem-first teams weigh carefully, whereas Expanse's telemetry-first approach doesn't require standardizing on one hardware vendor.</p>
+    </div>
+  </section>
+
+  <section class="band cream2">
+    <div class="wrap">
+      <h3 style="font-size:20px;margin-bottom:4px;">Head-to-head</h3>
+      <div class="h2h">
+        <table>
+          <thead><tr><th>Capability</th><th class="col-expanse">Expanse</th><th>NVIDIA Run:ai</th></tr></thead>
+          <tbody>
+            <tr><td>Predicts resource needs before a job runs</td><td class="col-expanse">Yes</td><td>No — allocates dynamically at run time</td></tr>
+            <tr><td>Predicts failure before submission</td><td class="col-expanse">Yes</td><td>No</td></tr>
+            <tr><td>Relationship to your scheduler</td><td class="col-expanse">Sits alongside it</td><td>Becomes your scheduler</td></tr>
+            <tr><td>Deploys fully on-prem / private</td><td class="col-expanse">Yes</td><td>Yes</td></tr>
+            <tr><td>Hardware stance</td><td class="col-expanse">Vendor-agnostic telemetry</td><td>Increasingly NVIDIA-centric</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="bottom-line">
+        <div class="eyebrow on-dark"><span class="dot"></span>Bottom line</div>
+        <p>For an enterprise already standardized on Kubernetes and NVIDIA hardware, Run:ai is the more established, broader bet on <b>orchestration</b>. Expanse is a narrower bet on <b>getting the request right before orchestration even starts</b> — the two are more complementary than mutually exclusive.</p>
+      </div>
+      <div class="src-list">Sources: <a href="https://www.nvidia.com/en-us/software/run-ai/">nvidia.com/software/run-ai</a></div>
+      <div class="study-nav">
+        <span class="link-back" data-nav="home">← Back to overview</span>
+        <span class="link-jump" data-nav="clearml">Next study: ClearML →</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ STUDY TEMPLATE: CLEARML ============ -->
+<div data-view="clearml">
+  <section class="study-hero">
+    <div class="wrap">
+      <span class="link-back" data-nav="home">← Back to overview</span>
+      <div class="study-head">
+        <div>
+          <h1>ClearML</h1>
+          <p class="tagline">A full-stack AI infrastructure and MLOps platform — GPU control plane, job scheduler, experiment tracking and GenAI deployment in one product.</p>
+        </div>
+        <span class="study-badge">MLOps Platform</span>
+      </div>
+      <div class="facts-grid">
+        <div class="fact"><div class="k">Category</div><div class="v">Infrastructure + MLOps platform</div></div>
+        <div class="fact"><div class="k">Scale claimed</div><div class="v">2,100+ orgs · 300,000+ AI builders</div></div>
+        <div class="fact"><div class="k">Environments</div><div class="v">Kubernetes · Slurm · PBS · bare metal</div></div>
+        <div class="fact"><div class="k">Typical buyer</div><div class="v">IT/DevOps + AI builders / data scientists</div></div>
+        <div class="fact"><div class="k">Access model</div><div class="v">Open-source core + enterprise platform</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap prose">
+      <h3>What it does</h3>
+      <p>ClearML describes itself as "the Infrastructure Platform for AI Builders," and the product footprint backs that up. Its <b>Infrastructure Control Plane</b> is a single-pane-of-glass for GPU allocation, monitoring and orchestration across Kubernetes, Slurm, PBS and bare metal, explicitly built to be silicon-agnostic across NVIDIA, AMD, Arm and Intel hardware. It includes a built-in job scheduler, quota management with hierarchical allocation policies, over-quota limits, and fractional GPU support the company says can increase workload capacity "10X."</p>
+      <p>That sits alongside two other products: an <b>AI Development Center</b> (an IDE-style environment with data integration, pipelines, model repository and CI/CD) and a <b>GenAI App Engine</b> for deploying LLM-based applications. Deployment covers on-prem, air-gapped, hybrid and multi-cloud, and the platform adds enterprise features — multi-tenant RBAC, SSO/LDAP, a billing API for chargeback — on top of what it frames as "a better Kubernetes experience for AI workloads."</p>
+      <p class="muted">In other words: ClearML isn't a single tool, it's a platform decision. Adopting it typically means routing scheduling, quota policy and a meaningful share of ML tooling through ClearML itself.</p>
+
+      <h3 style="margin-top:8px;">Claimed results</h3>
+      <div class="claim-row">
+        <div class="claim"><div class="num">75%+</div><div class="cap">GPU utilization rate claimed</div></div>
+        <div class="claim"><div class="num">200%</div><div class="cap">compute efficiency, up to</div></div>
+        <div class="claim"><div class="num">300 hrs</div><div class="cap">saved per DevOps engineer / year</div></div>
+      </div>
+      <div class="note-illustrative">Figures as published by ClearML on its product pages — not independently verified as part of this study.</div>
+
+      <h3 style="margin-top:28px;">Where it overlaps with Expanse</h3>
+      <p>This is the closest overlap in supported environments: ClearML explicitly supports Slurm alongside Kubernetes and bare metal, matching Expanse's own HPC-first footprint. Both also frame the problem the same way — GPU clusters sitting well below full utilization — and both pitch deployment on infrastructure the customer already owns, without a cloud migration.</p>
+
+      <h3>Where it differs</h3>
+      <p>ClearML is broad where Expanse is narrow. ClearML's control plane <i>is</i> a scheduler and quota engine in its own right — teams adopt it to make allocation decisions, not just to get better numbers to feed an existing one — and it extends well past infrastructure into experiment tracking, pipelines and GenAI app deployment. Expanse doesn't attempt any of that: it doesn't schedule, doesn't track experiments, and doesn't deploy models. Its entire surface area is the prediction — resource fit and failure risk — that happens in the seconds before a job is submitted to whatever scheduler you already run, ClearML's or otherwise. The practical question for a buyer is really scope: a full platform migration (ClearML) versus a single, narrow layer that installs without changing the rest of the stack (Expanse).</p>
+    </div>
+  </section>
+
+  <section class="band cream2">
+    <div class="wrap">
+      <h3 style="font-size:20px;margin-bottom:4px;">Head-to-head</h3>
+      <div class="h2h">
+        <table>
+          <thead><tr><th>Capability</th><th class="col-expanse">Expanse</th><th>ClearML</th></tr></thead>
+          <tbody>
+            <tr><td>Predicts resource needs before a job runs</td><td class="col-expanse">Yes — its core focus</td><td>Not the focus — schedules after submission</td></tr>
+            <tr><td>Predicts failure before submission</td><td class="col-expanse">Yes</td><td>Not specified</td></tr>
+            <tr><td>Acts as the scheduler itself</td><td class="col-expanse">No — feeds your existing one</td><td>Yes — built-in job scheduler</td></tr>
+            <tr><td>Scope beyond infrastructure</td><td class="col-expanse">None — single-purpose layer</td><td>Experiment tracking, pipelines, GenAI deployment</td></tr>
+            <tr><td>Supports Slurm</td><td class="col-expanse">Yes</td><td>Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="bottom-line">
+        <div class="eyebrow on-dark"><span class="dot"></span>Bottom line</div>
+        <p>ClearML is the strongest "one platform to run it all" alternative on this list, and the one whose supported environments most closely mirror Expanse's own. The trade-off is scope: ClearML asks a team to adopt a platform, while Expanse asks a team to add a single, low-commitment layer on top of whatever platform — ClearML included — they already run.</p>
+      </div>
+      <div class="src-list">Sources: <a href="https://clear.ml/infrastructure-control-plane">clear.ml/infrastructure-control-plane</a> · <a href="https://clear.ml/">clear.ml</a></div>
+      <div class="study-nav">
+        <span class="link-back" data-nav="runai">← Previous: NVIDIA Run:ai</span>
+        <span class="link-jump" data-nav="castai">Next study: CAST AI →</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ STUDY TEMPLATE: CAST AI ============ -->
+<div data-view="castai">
+  <section class="study-hero">
+    <div class="wrap">
+      <span class="link-back" data-nav="home">← Back to overview</span>
+      <div class="study-head">
+        <div>
+          <h1>CAST AI</h1>
+          <p class="tagline">A Kubernetes cost-optimization platform that shares, partitions and reshuffles GPU capacity across public clouds to cut the bill.</p>
+        </div>
+        <span class="study-badge">Kubernetes FinOps</span>
+      </div>
+      <div class="facts-grid">
+        <div class="fact"><div class="k">Category</div><div class="v">Kubernetes cost & GPU optimization</div></div>
+        <div class="fact"><div class="k">Scale claimed</div><div class="v">2,100+ companies (Akamai, BMW, Hugging Face)</div></div>
+        <div class="fact"><div class="k">Environments</div><div class="v">Kubernetes only — EKS, GKE, AKS, OCI</div></div>
+        <div class="fact"><div class="k">Typical buyer</div><div class="v">Cloud FinOps / platform teams</div></div>
+        <div class="fact"><div class="k">Access model</div><div class="v">SaaS, tied to cloud spend</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap prose">
+      <h3>What it does</h3>
+      <p>CAST AI's GPU product, branded <b>OMNI Compute for AI</b>, pitches itself as a way to "deploy more AI workloads on fewer GPUs anywhere." It consolidates GPU capacity across multiple cloud providers and regions into a single Kubernetes cluster, then optimizes what's already running on it: <b>time-slicing</b> to share one GPU across up to 48 workload replicas, <b>MIG partitioning</b> to split A100/A30/H100 GPUs into physically isolated instances, GPU-aware bin-packing, and automated fallback between spot and on-demand capacity.</p>
+      <p>Everything is Kubernetes-native — built on ResourceClaims, deployed across AWS EKS, Google GKE, Azure AKS and Oracle Cloud — with real-time cost attribution per workload and team, which is the point: CAST AI is sold and measured as a cost tool, not a research-infrastructure tool.</p>
+      <p class="muted">Notably, CAST AI's own marketing leans on utilization numbers to make its case — including an industry claim that average GPU utilization across Kubernetes clusters sits around 5%, with Azure as low as 2%.</p>
+
+      <h3 style="margin-top:8px;">Claimed results</h3>
+      <div class="claim-row">
+        <div class="claim"><div class="num">40–70%</div><div class="cap">cloud savings reported in case studies</div></div>
+        <div class="claim"><div class="num">48×</div><div class="cap">workload replicas per GPU via time-slicing</div></div>
+        <div class="claim"><div class="num">4.8/5</div><div class="cap">G2 rating across 50+ reviews</div></div>
+      </div>
+      <div class="note-illustrative">Figures as published by CAST AI on its product pages — not independently verified as part of this study.</div>
+
+      <h3 style="margin-top:28px;">Where it overlaps with Expanse</h3>
+      <p>Both companies point at the same underlying evidence — GPU clusters running at a small fraction of their real capacity — and both frame the fix as software, not more hardware. Both also emphasize automated setup with minimal engineering lift.</p>
+
+      <h3>Where it differs</h3>
+      <p>CAST AI's reach stops at Kubernetes on public cloud — there's no on-prem, no bare metal, no Slurm or Nomad, which rules out most of the research labs, hedge funds and neoclouds Expanse is built for. Its optimization also happens after the fact: workloads are already running, and CAST AI repacks, shares or migrates them to cut cost. Expanse's prediction happens before submission, on whatever scheduler the job would have gone to anyway, and isn't priced against cloud spend the way a FinOps tool is. The two could plausibly coexist for a cloud-heavy team — CAST AI optimizing the public-cloud portion of the fleet, Expanse covering the owned-cluster portion CAST AI doesn't reach at all.</p>
+    </div>
+  </section>
+
+  <section class="band cream2">
+    <div class="wrap">
+      <h3 style="font-size:20px;margin-bottom:4px;">Head-to-head</h3>
+      <div class="h2h">
+        <table>
+          <thead><tr><th>Capability</th><th class="col-expanse">Expanse</th><th>CAST AI</th></tr></thead>
+          <tbody>
+            <tr><td>Predicts resource needs before a job runs</td><td class="col-expanse">Yes</td><td>No — optimizes after deployment</td></tr>
+            <tr><td>Predicts failure before submission</td><td class="col-expanse">Yes</td><td>No</td></tr>
+            <tr><td>Supports on-prem / bare metal / Slurm</td><td class="col-expanse">Yes</td><td>No — Kubernetes on public cloud only</td></tr>
+            <tr><td>Pricing tied to cloud spend</td><td class="col-expanse">No</td><td>Yes</td></tr>
+            <tr><td>Primary lever</td><td class="col-expanse">Better requests before submission</td><td>Sharing, bin-packing, spot after submission</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="bottom-line">
+        <div class="eyebrow on-dark"><span class="dot"></span>Bottom line</div>
+        <p>CAST AI is a strong, well-adopted answer for public-cloud, Kubernetes-only fleets chasing a lower bill. It's not built for — and doesn't claim to serve — the owned-cluster, HPC-adjacent buyer that is Expanse's actual target, which limits how much the two products actually compete for the same deal.</p>
+      </div>
+      <div class="src-list">Sources: <a href="https://cast.ai/gpu-optimization/">cast.ai/gpu-optimization</a></div>
+      <div class="study-nav">
+        <span class="link-back" data-nav="clearml">← Previous: ClearML</span>
+        <span class="link-jump" data-nav="home">Back to overview →</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot-row">
+    <div class="logo light"><span class="mark"></span>expanse</div>
+    <span>Unofficial competitive-analysis document, compiled from public materials. Not published or endorsed by Expanse or any competitor named.</span>
+    <span>Prepared August 2026</span>
+  </div>
+</footer>
+
+<script>
+  function showView(name){
+    document.querySelectorAll('[data-view]').forEach(function(el){
+      el.classList.toggle('active', el.getAttribute('data-view') === name);
+    });
+    window.scrollTo(0,0);
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-nav]');
+    if(!t) return;
+    var view = t.getAttribute('data-nav');
+    location.hash = view;
+    showView(view);
+  });
+  window.addEventListener('hashchange', function(){
+    var v = location.hash.replace('#','') || 'home';
+    showView(v);
+  });
+  showView(location.hash.replace('#','') || 'home');
+</script>
+
+</body>
+</html>
